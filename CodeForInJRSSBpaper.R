@@ -1,10 +1,10 @@
 hypothesisTest = function(alpha = 0.05, testStatistic, observedOutcomes,
                           covariates, treatmentAllocation,
-                          numIters = 500,  nboot = 500)
+                          numIters = 500,  numMonteCarlo = 500)
 {
   
   referenceDistribution = generateReferenceDistribution(numIters = numIters,
-                                                        nboot = nboot,
+                                                        numMonteCarlo = numMonteCarlo,
                                                         testStatistic = testStatistic,
                                                         observedOutcomes = observedOutcomes,
                                                         covariates = covariates,
@@ -15,7 +15,7 @@ hypothesisTest = function(alpha = 0.05, testStatistic, observedOutcomes,
                                                  observedOutcomes = observedOutcomes,
                                                  covariates = covariates,
                                                  treatmentAllocation = treatmentAllocation,
-                                                 nboot = nboot)
+                                                 numMonteCarlo = numMonteCarlo)
   
   # p-Value of the test & rejection of the null
   pValue = mean(referenceDistribution > observedTestStatistic)
@@ -24,7 +24,7 @@ hypothesisTest = function(alpha = 0.05, testStatistic, observedOutcomes,
   return(list(rejectNull = reject, pValue = pValue))
 }
 
-GaussianPrepivTestStat = function(testStatistic, observedOutcomes, covariates, treatmentAllocation, nboot)
+GaussianPrepivTestStat = function(testStatistic, observedOutcomes, covariates, treatmentAllocation, numMonteCarlo)
 {
   N = length(treatmentAllocation) # Number of units
   nt = sum(treatmentAllocation) # Number of treated units
@@ -46,22 +46,22 @@ GaussianPrepivTestStat = function(testStatistic, observedOutcomes, covariates, t
   # Neyman's classical variance estimator for the difference in means
   varEst = (var(Ytreated)/nt) + (var(Ycontrol)/nc) 
   
-  # Gaussian prepivot by using a parametric bootstrap on the difference in means
-  bootstrapDistribution = numeric(nboot)
-  for(b in 1:nboot)
+  # Gaussian prepivot by using Monte-Carlo approximation to the pushforward measure
+  MCapprox = numeric(numMonteCarlo)
+  for(b in 1:numMonteCarlo)
   {
     gaussianDraw = mvtnorm::rmvnorm(n = 1, sigma = as.matrix(varEst))
-    bootstrapDistribution[b] = testStatistic(diffInMeans = gaussianDraw,
+    MCapprox[b] = testStatistic(diffInMeans = gaussianDraw,
                                              observedOutcomes = Yobs, covariates = covariates,
                                              treatmentAllocation = treatmentAllocation)
   }
-  prepivResult = mean(bootstrapDistribution <= unprepivStat) # The prepivoted statistic
+  prepivResult = mean(MCapprox <= unprepivStat) # The prepivoted statistic
   
   return(prepivResult)
 }
 
 generateReferenceDistribution = function(numIters = 500, testStatistic, observedOutcomes,
-                                         covariates, treatmentAllocation, nboot = 500)
+                                         covariates, treatmentAllocation, numMonteCarlo = 500)
 {
   referenceDistribution = numeric(numIters)
   for(i in 1:numIters)
@@ -69,7 +69,7 @@ generateReferenceDistribution = function(numIters = 500, testStatistic, observed
     pseudoTreatmentAllocation = sample(treatmentAllocation, replace = FALSE)
     referenceDistribution[i] = GaussianPrepivTestStat(testStatistic = testStatistic, observedOutcomes = observedOutcomes,
                                                       covariates = covariates, treatmentAllocation = pseudoTreatmentAllocation,
-                                                      nboot = nboot)
+                                                      numMonteCarlo = numMonteCarlo)
   }
   return(referenceDistribution)
 }
@@ -87,7 +87,7 @@ alpha = 0.05 # the level of the test
 ###########################################
 # Some algorithm hyperparameters
 numIters = 100
-nboot = 100
+numMonteCarlo = 100
 
 # First we make some synthetic data for our experiments
 N = 1000 # the number of units
@@ -134,7 +134,7 @@ DIM_Gaussian = hypothesisTest(alpha = alpha,
                               testStatistic = DiM_GaussianPrepiv, 
                               observedOutcomes = Yobs, covariates = data.frame(X),
                               treatmentAllocation = Z, 
-                              numIters = numIters, nboot = nboot)
+                              numIters = numIters, numMonteCarlo = numMonteCarlo)
 
 
 if(DIM_Gaussian$rejectNull)
