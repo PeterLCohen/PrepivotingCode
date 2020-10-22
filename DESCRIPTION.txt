@@ -1,0 +1,35 @@
+README
+
+Authors: Peter L. Cohen (MIT) & Colin B. Fogarty (MIT)
+
+This software accompanies ``Gaussian Prepivoting for Finite Population Causal Inference" (Cohen & Fogarty).  A freely available copy of the paper is available at https://arxiv.org/abs/2002.06654.
+
+################################################################################
+                Example Implementations for Gaussian Prepivoting
+################################################################################
+Two different example implementations of Gaussian prepivoting are provided.
+  *) JRSSBResponse_ExampleCode.ipynb is a Jupyter notebook with a walkthrough of the theory of Gaussian prepivoting demonstrated through the example of the absolute difference in means
+  *) CodeForInJRSSBpaper.R is an implementation of Gaussian prepivoting for the absolute difference in means with a modular structure designed to generalize to other user-defined test statistics
+
+################################################################################
+                          Reproducing Paper Results
+################################################################################
+
+To generate the results for Table 1 of the paper run:
+  *) RerandomizationSharp_DataSimulator.R to create the sharp null rows (change N to the desired population size)
+  *) RerandomizationWeak_DataSimulator.R to create the weak null rows (change N to the desired population size)
+
+To generate the results for Table 2 of the paper run:
+  *) SharpNull_DataSimulator.R to create the sharp null rows (change N to the desired population size)
+  *) WeakNull_DataSimulator.R to create the weak null rows (change N to the desired population size)
+
+To generate the results for Table 3 of the supplementary material:
+  *) Repeat the procedure for generating Table 2, but change ``tau" and ``taubar" to match the desired treatment effects
+  *) With these modifications, SharpNull_DataSimulator.R generates the constant effects power simulations and WeakNull_DataSimulator.R generates the heterogeneous effects power simulations
+
+To generate the figures of the paper run:
+  *) Run SharpNull_DataSimulator.R at N = 50 and save the results as rerandN50sharp (just modify the save command in the script to specify the new filename)
+  *) Run SharpNull_DataSimulator.R at N = 1000 and save the results as rerandN1000sharp
+  *) Run WeakNull_DataSimulator.R at N = 50 and save the results as rerandN50weak (just modify the save command in the script to specify the new filename)
+  *) Run WeakNull_DataSimulator.R at N = 1000 and save the results as rerandN1000weak
+  *) Run PlotGenerator.R in the same directory that you saved the data
