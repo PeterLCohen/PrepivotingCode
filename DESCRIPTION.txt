@@ -8,8 +8,8 @@ This software accompanies ``Gaussian Prepivoting for Finite Population Causal In
                 Example Implementations for Gaussian Prepivoting
 ################################################################################
 Two different example implementations of Gaussian prepivoting are provided.
-  *) JRSSBResponse_ExampleCode.ipynb is a Jupyter notebook with a walkthrough of the theory of Gaussian prepivoting demonstrated through the example of the absolute difference in means
-  *) CodeForInJRSSBpaper.R is an implementation of Gaussian prepivoting for the absolute difference in means with a modular structure designed to generalize to other user-defined test statistics
+  *) Response_ExampleCode.ipynb is a Jupyter notebook with a walkthrough of the theory of Gaussian prepivoting demonstrated through the example of the absolute difference in means
+  *) CodeForInpaper.R is an implementation of Gaussian prepivoting for the absolute difference in means with a modular structure designed to generalize to other user-defined test statistics
 
 ################################################################################
                           Reproducing Paper Results
