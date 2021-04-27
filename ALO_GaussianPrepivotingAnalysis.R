@@ -2,7 +2,7 @@ library(foreign) # This package is used to read in the data from the ALO paper (
 
 set.seed(1) # For reproducible results
 # Some hyperparamters
-numPerms = 5000
+numPerms = 10000
 nMC = 10000
 
 
