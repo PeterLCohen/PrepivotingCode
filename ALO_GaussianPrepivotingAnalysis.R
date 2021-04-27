@@ -10,7 +10,7 @@ nMC = 10000
 # Pull in the ALO data set
 ################################################################################
 # To download the data go to "https://www.aeaweb.org/articles?id=10.1257/app.1.1.136"
-ALO_RawData <- read.dta("<SPECIFY YOUR FILEPATH HERE>/STARdatapost/STAR_public_use.dta")
+ALO_RawData <- read.dta("<YOUR FILEPATH HERE>/STAR_public_use.dta")
 
 ALO_males = ALO_RawData[!ALO_RawData$female,] # Subset to only males
 
@@ -20,7 +20,7 @@ experimentalData = experimentalData[complete.cases(experimentalData), ]
 # Examine only those who were offered services or services & support
 experimentalData = experimentalData[experimentalData$sfsp + experimentalData$ssp == 1, ]
 
-treatment = as.logical(experimentalData$sfsp) # Treatment is "financial incentive offered" given that services were also offered 
+treatment = as.logical(experimentalData$sfsp) # Treatment is "financial incentive offered" given that services were also offered
 N = length(treatment)
 n1 = sum(treatment)
 n0 = N - n1
@@ -43,13 +43,13 @@ multivarStudentized_function = function(diffInMeans, observedOutcomes, covariate
 {
   # diffInMeans must be a col vector
   diffInMeans = matrix(diffInMeans, ncol = 1)
-  
+
   # Studentizing with the Neyman covariance estimator
   N = length(treatmentAllocation)
   n1 = sum(treatmentAllocation)
   n0 = N - n1
   V_neyman = N*((cov(observedOutcomes[treatmentAllocation, ]) / n1) + (cov(observedOutcomes[!treatmentAllocation, ])/ n0))
-  
+
   return(as.numeric(N*t(diffInMeans)%*%solve(V_neyman)%*%diffInMeans))
 }
 
@@ -58,15 +58,15 @@ multivarPooled_function = function(diffInMeans, observedOutcomes, covariates, tr
 {
   # diffInMeans must be a col vector
   diffInMeans = matrix(diffInMeans, ncol = 1)
-  
+
   # Studentizing with the Neyman covariance estimator
   N = length(treatmentAllocation)
   n1 = sum(treatmentAllocation)
   n0 = N - n1
   V_pool = ((N / n0) + (N / n1))*
-    (((n1 - 1)*cov(observedOutcomes[treatmentAllocation, ]) + 
+    (((n1 - 1)*cov(observedOutcomes[treatmentAllocation, ]) +
         (n0 - 1)*cov(observedOutcomes[!treatmentAllocation, ])) / (n1 + n0 - 2))
-  
+
   return(as.numeric(N*t(diffInMeans)%*%solve(V_pool)%*%diffInMeans))
 }
 
@@ -76,11 +76,11 @@ maxT_function = function(diffInMeans, observedOutcomes, covariates, treatmentAll
   N = length(treatmentAllocation)
   n1 = sum(treatmentAllocation)
   n0 = N - n1
-  
+
   V_neyman = N*((cov(observedOutcomes[treatmentAllocation, ]) / n1) + (cov(observedOutcomes[!treatmentAllocation, ])/ n0))
-  
+
   tStat = sqrt(N)*abs(diffInMeans)/diag(V_neyman)
-  
+
   return(max(tStat))
 }
 
@@ -97,22 +97,22 @@ Xcontrol = covariates[!treatment, ,drop = FALSE] # control covariates
 
 # Compute the non-prepivoted test statistics (without any regression adjustment)
 MaxT = maxT_function(diffInMeans = colMeans(as.matrix(Ytreated)) - colMeans(as.matrix(Ycontrol)),
-                     observedOutcomes = observedOutcomes, 
+                     observedOutcomes = observedOutcomes,
                      covariates = covariates,
                      treatmentAllocation = treatment) # the test statistic without prepivoting
 
 Euclidean = norm_function(diffInMeans = colMeans(as.matrix(Ytreated)) - colMeans(as.matrix(Ycontrol)),
-                          observedOutcomes = observedOutcomes, 
+                          observedOutcomes = observedOutcomes,
                           covariates = covariates,
                           treatmentAllocation = treatment) # the test statistic without prepivoting
 
 Studentized = multivarStudentized_function(diffInMeans = colMeans(as.matrix(Ytreated)) - colMeans(as.matrix(Ycontrol)),
-                                           observedOutcomes = observedOutcomes, 
+                                           observedOutcomes = observedOutcomes,
                                            covariates = covariates,
                                            treatmentAllocation = treatment) # the test statistic without prepivoting
 
 Pooled = multivarPooled_function(diffInMeans = colMeans(as.matrix(Ytreated)) - colMeans(as.matrix(Ycontrol)),
-                                 observedOutcomes = observedOutcomes, 
+                                 observedOutcomes = observedOutcomes,
                                  covariates = covariates,
                                  treatmentAllocation = treatment) # the test statistic without prepivoting
 
@@ -126,22 +126,22 @@ predsC = predict(lmC, covariates)
 regAdjEstimator = as.matrix(colMeans(predsT - predsC))
 
 regAdj_MaxT = maxT_function(diffInMeans = regAdjEstimator,
-                            observedOutcomes = observedOutcomes, 
+                            observedOutcomes = observedOutcomes,
                             covariates = covariates,
                             treatmentAllocation = treatment) # the test statistic without prepivoting
 
 regAdj_Euclidean = norm_function(diffInMeans = regAdjEstimator,
-                                 observedOutcomes = observedOutcomes, 
+                                 observedOutcomes = observedOutcomes,
                                  covariates = covariates,
                                  treatmentAllocation = treatment) # the test statistic without prepivoting
 
 regAdj_Studentized = multivarStudentized_function(diffInMeans = regAdjEstimator,
-                                                  observedOutcomes = observedOutcomes, 
+                                                  observedOutcomes = observedOutcomes,
                                                   covariates = covariates,
                                                   treatmentAllocation = treatment) # the test statistic without prepivoting
 
 regAdj_Pooled = multivarPooled_function(diffInMeans = regAdjEstimator,
-                                        observedOutcomes = observedOutcomes, 
+                                        observedOutcomes = observedOutcomes,
                                         covariates = covariates,
                                         treatmentAllocation = treatment) # the test statistic without prepivoting
 
@@ -152,22 +152,22 @@ varEst = (cov(Ytreated)/n1) + (cov(Ycontrol)/n0) # Neyman's classical variance e
 gaussianDraw = mvtnorm::rmvnorm(n = nMC, sigma = as.matrix(varEst))
 MaxT_MC = apply(gaussianDraw, 1, maxT_function, observedOutcomes = observedOutcomes, covariates = covariates, treatmentAllocation = treatment)
 Euclidean_MC = apply(gaussianDraw, 1, norm_function, observedOutcomes = observedOutcomes, covariates = covariates, treatmentAllocation = treatment)
-Studentized_MC = apply(gaussianDraw, 1, multivarStudentized_function, observedOutcomes = observedOutcomes, covariates = covariates, treatmentAllocation = treatment)
+# Studentized_MC = apply(gaussianDraw, 1, multivarStudentized_function, observedOutcomes = observedOutcomes, covariates = covariates, treatmentAllocation = treatment)
 Pooled_MC = apply(gaussianDraw, 1, multivarPooled_function, observedOutcomes = observedOutcomes, covariates = covariates, treatmentAllocation = treatment)
 
 # Prepivoted statistics
-MaxT_Prepiv_obs = mean(MaxT_MC <= MaxT) 
-Euclidean_Prepiv_obs = mean(Euclidean_MC <= Euclidean) 
+MaxT_Prepiv_obs = mean(MaxT_MC <= MaxT)
+Euclidean_Prepiv_obs = mean(Euclidean_MC <= Euclidean)
 Studentized_Prepiv_obs = pchisq(Studentized, df = 2) #
-# Studentized_Prepiv_obs = mean(Studentized_MC <= Studentized) 
+# Studentized_Prepiv_obs = mean(Studentized_MC <= Studentized)
 # plot(ecdf(pchisq(Studentized_MC, df = 2)))
 # abline(a=0, b =1)
 Pooled_Prepiv_obs = mean(Pooled_MC <= Pooled)
 
-regAdj_MaxT_Prepiv_obs = mean(MaxT_MC <= regAdj_MaxT) 
-regAdj_Euclidean_Prepiv_obs = mean(Euclidean_MC <= regAdj_Euclidean) 
+regAdj_MaxT_Prepiv_obs = mean(MaxT_MC <= regAdj_MaxT)
+regAdj_Euclidean_Prepiv_obs = mean(Euclidean_MC <= regAdj_Euclidean)
 regAdj_Studentized_Prepiv_obs = pchisq(regAdj_Studentized, df = 2) #
-# regAdj_Studentized_Prepiv_obs =  mean(Studentized_MC <= regAdj_Studentized) 
+# regAdj_Studentized_Prepiv_obs =  mean(Studentized_MC <= regAdj_Studentized)
 regAdj_Pooled_Prepiv_obs = mean(Pooled_MC <= regAdj_Pooled)
 
 ################################################################################
@@ -200,83 +200,83 @@ for (i in 1:numPerms)
   W = sample(temp)
   Ytreated = observedOutcomes[W, ,drop = FALSE] # treated outcomes
   Xtreated = covariates[W, ,drop = FALSE] # treated covariates
-  
+
   Ycontrol = observedOutcomes[!W, ,drop = FALSE] # control outcomes
   Xcontrol = covariates[!W, ,drop = FALSE] # control covariates
-  
-  
+
+
   # Compute the non-prepivoted test statistics (without any regression adjustment)
   MaxT_withoutPrepiv[i] = maxT_function(diffInMeans = colMeans(as.matrix(Ytreated)) - colMeans(as.matrix(Ycontrol)),
-                                        observedOutcomes = observedOutcomes, 
+                                        observedOutcomes = observedOutcomes,
                                         covariates = covariates,
                                         treatmentAllocation = W) # the test statistic without prepivoting
-  
+
   Euclidean_withoutPrepiv[i] = norm_function(diffInMeans = colMeans(as.matrix(Ytreated)) - colMeans(as.matrix(Ycontrol)),
-                                             observedOutcomes = observedOutcomes, 
+                                             observedOutcomes = observedOutcomes,
                                              covariates = covariates,
                                              treatmentAllocation = W) # the test statistic without prepivoting
-  
+
   Studentized_withoutPrepiv[i] = multivarStudentized_function(diffInMeans = colMeans(as.matrix(Ytreated)) - colMeans(as.matrix(Ycontrol)),
-                                                              observedOutcomes = observedOutcomes, 
+                                                              observedOutcomes = observedOutcomes,
                                                               covariates = covariates,
                                                               treatmentAllocation = W) # the test statistic without prepivoting
-  
+
   Pooled_withoutPrepiv[i] = multivarPooled_function(diffInMeans = colMeans(as.matrix(Ytreated)) - colMeans(as.matrix(Ycontrol)),
-                                                    observedOutcomes = observedOutcomes, 
+                                                    observedOutcomes = observedOutcomes,
                                                     covariates = covariates,
                                                     treatmentAllocation = W) # the test statistic without prepivoting
-  
+
   # Compute the non-prepivoted test statistics (with regression adjustment on the high-school gpa)
   lmT = lm(cbind(GPA_year1, GPA_year2)~gpa0, data = data.frame(experimentalData), subset = W)
   lmC = lm(cbind(GPA_year1, GPA_year2)~gpa0, data = data.frame(experimentalData), subset = !W)
-  
+
   predsT = predict(lmT, covariates)
   predsC = predict(lmC, covariates)
-  
+
   regAdjEstimator = as.matrix(colMeans(predsT - predsC))
-  
+
   regAdj_MaxT_withoutPrepiv[i] = maxT_function(diffInMeans = regAdjEstimator,
-                                               observedOutcomes = observedOutcomes, 
+                                               observedOutcomes = observedOutcomes,
                                                covariates = covariates,
                                                treatmentAllocation = W) # the test statistic without prepivoting
-  
+
   regAdj_Euclidean_withoutPrepiv[i] = norm_function(diffInMeans = regAdjEstimator,
-                                                    observedOutcomes = observedOutcomes, 
+                                                    observedOutcomes = observedOutcomes,
                                                     covariates = covariates,
                                                     treatmentAllocation = W) # the test statistic without prepivoting
-  
+
   regAdj_Studentized_withoutPrepiv[i] = multivarStudentized_function(diffInMeans = regAdjEstimator,
-                                                                     observedOutcomes = observedOutcomes, 
+                                                                     observedOutcomes = observedOutcomes,
                                                                      covariates = covariates,
                                                                      treatmentAllocation = W) # the test statistic without prepivoting
-  
+
   regAdj_Pooled_withoutPrepiv[i] = multivarPooled_function(diffInMeans = regAdjEstimator,
-                                                           observedOutcomes = observedOutcomes, 
+                                                           observedOutcomes = observedOutcomes,
                                                            covariates = covariates,
                                                            treatmentAllocation = W) # the test statistic without prepivoting
-  
+
   # Compute the prepivoted test statistics (using the Neyman covariance estimator for prepivoting)
   varEst = (cov(Ytreated)/n1) + (cov(Ycontrol)/n0) # Neyman's classical variance estimator for the difference in means
-  
+
   # Gaussian prepivot by using Monte-Carlo simulation on the difference in means
   gaussianDraw = mvtnorm::rmvnorm(n = nMC, sigma = as.matrix(varEst))
   MaxT_MC = apply(gaussianDraw, 1, maxT_function, observedOutcomes = observedOutcomes, covariates = covariates, treatmentAllocation = W)
   Euclidean_MC = apply(gaussianDraw, 1, norm_function, observedOutcomes = observedOutcomes, covariates = covariates, treatmentAllocation = W)
-  Studentized_MC = apply(gaussianDraw, 1, multivarStudentized_function, observedOutcomes = observedOutcomes, covariates = covariates, treatmentAllocation = W)
+  # Studentized_MC = apply(gaussianDraw, 1, multivarStudentized_function, observedOutcomes = observedOutcomes, covariates = covariates, treatmentAllocation = W)
   Pooled_MC = apply(gaussianDraw, 1, multivarPooled_function, observedOutcomes = observedOutcomes, covariates = covariates, treatmentAllocation = W)
   # Prepivoted statistics
-  MaxT_Prepiv[i] = mean(MaxT_MC <= MaxT_withoutPrepiv[i]) 
-  Euclidean_Prepiv[i] = mean(Euclidean_MC <= Euclidean_withoutPrepiv[i]) 
+  MaxT_Prepiv[i] = mean(MaxT_MC <= MaxT_withoutPrepiv[i])
+  Euclidean_Prepiv[i] = mean(Euclidean_MC <= Euclidean_withoutPrepiv[i])
   Studentized_Prepiv[i] = pchisq(Studentized_withoutPrepiv[i], df = 2) #
-  # Studentized_Prepiv[i] = mean(Studentized_MC <= Studentized_withoutPrepiv[i]) 
+  # Studentized_Prepiv[i] = mean(Studentized_MC <= Studentized_withoutPrepiv[i])
   # plot(ecdf(pchisq(Studentized_MC, df = 2)))
   # abline(a=0, b =1)
   Pooled_Prepiv[i] = mean(Pooled_MC <= Pooled_withoutPrepiv[i])
-  
-  regAdj_MaxT_Prepiv[i] = mean(MaxT_MC <= regAdj_MaxT_withoutPrepiv[i]) 
+
+  regAdj_MaxT_Prepiv[i] = mean(MaxT_MC <= regAdj_MaxT_withoutPrepiv[i])
   regAdj_Euclidean_Prepiv[i] = mean(Euclidean_MC <= regAdj_Euclidean_withoutPrepiv[i])
   regAdj_Studentized_Prepiv[i] = pchisq(regAdj_Studentized_withoutPrepiv[i], df = 2)#
-  # regAdj_Studentized_Prepiv[i] = mean(Studentized_MC <= regAdj_Studentized_withoutPrepiv[i]) 
+  # regAdj_Studentized_Prepiv[i] = mean(Studentized_MC <= regAdj_Studentized_withoutPrepiv[i])
   regAdj_Pooled_Prepiv[i] = mean(Pooled_MC <= regAdj_Pooled_withoutPrepiv[i])
 }
 
