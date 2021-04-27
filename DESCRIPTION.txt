@@ -38,3 +38,8 @@ To recreate the data analysis section of the paper:
   *) Obtain the Angrist et al. (2009) STAR dataset from https://www.aeaweb.org/articles?id=10.1257/app.1.1.136
   *) Save the file "STAR_public_use.dta" to the directory of your choice
   *) Run "ALO_GaussianPrepivotingAnalysis.R"
+  
+################################################################################
+                                General Notes
+################################################################################
+The algorithms provided are stochastic approximations to Algorithm 1 of Cohen & Fogarty (2021); they rely upon Monte-Carlo approximation.  For practitioners seeking to use the code above as a template for custom analyses of their interest this presents the standard trade-off between runtime and reduction of Monte-Carlo error.  Practitioners are advised to select the number of Monte-Carlo simulations to be high enough to observe stable output (perhaps by running the algorithm a few times with increasing numbers of Monte-Carlo simulations) while maintaining reasonable runtime on their machine.
