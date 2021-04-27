@@ -11,6 +11,7 @@ library(CompQuadForm)
 K= 25
 rhoT = 0 # Correlation for treated outcomes
 rhoC = .95 # Correlation for control outcomes
+alpha = 0.05 # Significance level
 
 # Generate an equicorrelated covariance matrix
 SigmaT = matrix(rhoT, K, K)
@@ -155,20 +156,20 @@ for(i in 1:nrand)
 
 # Output some results (Compare these with resutls in Table 2 of https://arxiv.org/abs/2002.06654)
 cat("\n\nHotelling, UNPOOOLED\n")
-print(mean(pvalchi[1:(i-1)] <= .25))
-print(mean(pvalprechi[1:(i-1)] <= .25))
-print(mean(1-statprechi <= .25)) # Used to generate LS column data in Table 2
+print(mean(pvalchi[1:(i-1)] <= alpha))
+print(mean(pvalprechi[1:(i-1)] <= alpha))
+print(mean(1-statprechi <= alpha)) # Used to generate LS column data in Table 2
 
 
 cat("Hotelling, POOOLED\n")
-print(mean(pvalpool[1:(i-1)] <= .25))
-print(mean(pvalprepool[1:(i-1)] <= .25))
-print(mean(1-statprepool <= .25)) # Used to generate LS column data in Table 2
+print(mean(pvalpool[1:(i-1)] <= alpha))
+print(mean(pvalprepool[1:(i-1)] <= alpha))
+print(mean(1-statprepool <= alpha)) # Used to generate LS column data in Table 2
 
 cat("MAX t-STAT\n")
-print(mean(pvalmax[1:(i-1)] <= .25))
-print(mean(pvalpremax[1:(i-1)] <= .25))
-print(mean(1-statpremax <= .25)) # Used to generate LS column data in Table 2
+print(mean(pvalmax[1:(i-1)] <= alpha))
+print(mean(pvalpremax[1:(i-1)] <= alpha))
+print(mean(1-statpremax <= alpha)) # Used to generate LS column data in Table 2
 
 ################################################################################
 #########                    Save the results                       ############
